@@ -14,8 +14,11 @@ public class DataLoader implements CommandLineRunner {
 
     @Override
     public void run(String... args) {
-        taskRepository.save(new Task("Learn Spring Boot", "in-progress"));
-        taskRepository.save(new Task("Build the Tasks API", "done"));
-        taskRepository.save(new Task("Add a real database", "in-progress"));
+        if (taskRepository.count() == 0) {
+            taskRepository.save(new Task("Learn Spring Boot", "in-progress"));
+            taskRepository.save(new Task("Build the Tasks API", "done"));
+            taskRepository.save(new Task("Add a real database", "in-progress"));
+        }
+        
     }   
 }
