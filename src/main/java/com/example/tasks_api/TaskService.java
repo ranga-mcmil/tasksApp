@@ -9,9 +9,11 @@ import org.springframework.stereotype.Service;
 @Service
 public class TaskService {
     private final TaskRepository taskRepository;    
+    private final UserRepository userRepository;
 
-    public TaskService(TaskRepository taskRepository) {
+    public TaskService(TaskRepository taskRepository, UserRepository userRepository) {
         this.taskRepository = taskRepository;
+        this.userRepository = userRepository;
     }
 
     public List<Task> getAllTasks () {
@@ -26,7 +28,14 @@ public class TaskService {
         return taskRepository.findByStatus(status);
     }
 
-    public Task addTask(Task task) {
+    public List<Task> getTasksByUser(Long userId) {
+        return taskRepository.findByUserId(userId);
+    }
+
+    public Task addTask(Long userId, Task task) {
+        User user = userRepository.findById(userId)
+                                  .orElseThrow(() -> new RuntimeException("User not found: " + userId));
+        task.setUser(user);
         return taskRepository.save(task);
     }
 
@@ -36,7 +45,7 @@ public class TaskService {
 
     public Task updateTask(Long id, Task updatedTask) {
         Task existing = taskRepository.findById(id)
-                                      .orElseThrow(() -> new TaskNotFoundException(id));
+            .orElseThrow(() -> new TaskNotFoundException(id));
         existing.setTitle(updatedTask.getTitle());
         existing.setStatus(updatedTask.getStatus());
         return taskRepository.save(existing);

@@ -11,6 +11,9 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
+
+import jakarta.validation.Valid;
+
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.PutMapping;
@@ -27,10 +30,13 @@ public class TaskController {
     }
 
     @GetMapping
-    public List<Task> getTasks(@RequestParam(required = false) String status) {
-        if (status != null) {
-            return taskService.getTaskByStatus(status);
-        }
+    public List<Task> getTasks(
+        @RequestParam(required = false) String status,
+        @RequestParam(required = false) Long userId
+    ) {
+        if (userId != null) return taskService.getTasksByUser(userId);
+        if (status != null) return taskService.getTaskByStatus(status);
+        
         return taskService.getAllTasks();
     }
     
@@ -42,12 +48,12 @@ public class TaskController {
 
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
-    public Task createTask(@RequestBody Task task) {
-        return taskService.addTask(task);
+    public Task createTask(@RequestParam Long userId, @Valid @RequestBody Task task) {        
+        return taskService.addTask(userId, task);
     }
 
     @PutMapping("/{id}")
-    public Task updateTask(@PathVariable Long id, @RequestBody Task task) {
+    public Task updateTask(@PathVariable Long id, @Valid @RequestBody Task task) {
         return taskService.updateTask(id, task);
     }
 
